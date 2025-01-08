@@ -1,0 +1,300 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+      <h1 class="text-white">Películas</h1>
+    </div>
+  </div>
+</div>
+
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- Botón para agregar nueva tarea -->
+  <div class="row mb-4">
+    <div class="col">
+      <div class="input-group input-group-alternative">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+        <input
+          class="form-control"
+          placeholder="Para buscar, escriba aquí y presione Enter"
+          type="text"
+          [(ngModel)]="searchText"
+          (keyup.enter)="onSearch()"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <!-- Table -->
+    <div class="col-12">
+      <div class="card shadow">
+        <div class="card-header border-0">
+          <h3 class="mb-0">Lista de Películas</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-items-center table-flush">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">Póster</th>
+                <th scope="col">Título</th>
+                <th scope="col">Año de Lanzamiento</th>
+                <th scope="col">Calificación</th>
+                <th scope="col">Detalle y Calificar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Aquí iteramos sobre la lista de tareas -->
+              <tr *ngFor="let movie of filteredMovies">
+                <td>
+                  <img
+                    [src]="
+                      'https://image.tmdb.org/t/p/w200' + movie.poster_path
+                    "
+                    alt="{{ movie.title }}"
+                    class="img-thumbnail"
+                    style="width: 100px; height: auto"
+                  />
+                </td>
+                <td>{{ movie.title }}</td>
+                <td>{{ movie.release_date | date : "yyyy" }}</td>
+                <td>
+                  <!-- Calificación con estrellas -->
+                  <div class="star-rating">
+                    <ng-container
+                      *ngFor="let star of getStars(movie.vote_average)"
+                    >
+                      <i class="fa" [ngClass]="star"></i>
+                    </ng-container>
+                  </div>
+                </td>
+                <td>
+                  <!-- Iconos para editar y eliminar -->
+                  <button class="btn btn-warning" (click)="openMovieDetails(movie)">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer py-4">
+          <nav aria-label="...">
+            <ul class="pagination justify-content-end mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a
+                  class="page-link"
+                  href="javascript:void(0)"
+                  (click)="changePage(currentPage - 1)"
+                >
+                  <i class="fas fa-angle-left"></i>
+                  <span class="sr-only">Previous</span>
+                </a>
+              </li>
+
+              <!-- Mostrar solo las páginas calculadas -->
+              <li
+                *ngFor="let page of pageNumbers"
+                class="page-item"
+                [class.active]="currentPage === page"
+              >
+                <a
+                  class="page-link"
+                  href="javascript:void(0)"
+                  (click)="changePage(page)"
+                >
+                  {{ page }}
+                </a>
+              </li>
+
+              <li
+                class="page-item"
+                [class.disabled]="currentPage === totalPages"
+              >
+                <a
+                  class="page-link"
+                  href="javascript:void(0)"
+                  (click)="changePage(currentPage + 1)"
+                >
+                  <i class="fas fa-angle-right"></i>
+                  <span class="sr-only">Next</span>
+                </a>
+              </li>
+            </ul>
+            <p>Total de películas: {{ totalResults }}</p>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Editar Tarea -->
+  <div
+    *ngIf="modalVisible"
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Tarea</h5>
+          <button type="button" class="close" (click)="modalVisible = false">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="taskTitle">Título:</label>
+            <input
+              [(ngModel)]="selectedTask.Titulo"
+              id="taskTitle"
+              class="form-control"
+            />
+          </div>
+          <div class="form-group">
+            <label for="taskDescription">Descripción:</label>
+            <textarea
+              [(ngModel)]="selectedTask.Descripcion"
+              id="taskDescription"
+              class="form-control"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="taskDate">Fecha Limite:</label>
+            <input
+              [(ngModel)]="selectedTask.FechaLimite"
+              id="taskDate"
+              type="date"
+              class="form-control"
+            />
+          </div>
+          <div class="form-group">
+            <label for="taskEmployee">Empleado:</label>
+            <select
+              [(ngModel)]="selectedTask.IdEmpleado"
+              id="taskEmployee"
+              class="form-control"
+            >
+              <option
+                *ngFor="let empleado of empleados"
+                [value]="empleado.IdEmpleado"
+              >
+                {{ empleado.Nombre }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="taskStatus">Estado:</label>
+            <select
+              [(ngModel)]="selectedTask.IdEstado"
+              id="taskStatus"
+              class="form-control"
+            >
+              <option *ngFor="let estado of estados" [value]="estado.IdEstado">
+                {{ estado.NombreEstado }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="modalVisible = false"
+          >
+            Cerrar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="saveTaskEdit()"
+          >
+            Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver detalles de la película -->
+  <div
+    *ngIf="modalDetailsVisible"
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detalles de la Película</h5>
+          <button
+            type="button"
+            class="close"
+            (click)="modalDetailsVisible = false"
+          >
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-4">
+              <img
+                [src]="
+                  'https://image.tmdb.org/t/p/w500' + selectedMovie.poster_path
+                "
+                alt="{{ selectedMovie.title }}"
+                class="img-fluid"
+              />
+            </div>
+            <div class="col-md-8">
+              <h4>{{ selectedMovie.title }}</h4>
+              <p><strong>Descripción:</strong> {{ selectedMovie.overview }}</p>
+              <p>
+                <strong>Año de Lanzamiento:</strong>
+                {{ selectedMovie.release_date | date : "yyyy" }}
+              </p>
+              <p>
+                <strong>Géneros:</strong>
+                <span
+                  *ngFor="let genre of selectedMovie.genres; let isLast = last"
+                >
+                  {{ genre.name }}<span *ngIf="!isLast">, </span>
+                </span>
+              </p>
+              <p>
+                <strong>Duración:</strong> {{ selectedMovie.runtime }} minutos
+              </p>
+              <div class="form-group">
+                <label for="rating">Calificación (Esta calificación se guardará en la página oficial de TMDB)</label>
+                <ngx-star-rating
+                  [(value)]="rating"
+                  [starSize]="30"
+                  [iconSet]="'fa'"
+                  [showHalfStars]="true"
+                ></ngx-star-rating>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="modalDetailsVisible = false"
+          >
+            Cerrar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="saveMovieRating()"
+          >
+            Guardar calificación
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<ngx-spinner type="ball-scale-multiple"></ngx-spinner>
