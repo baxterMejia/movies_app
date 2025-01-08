@@ -40,8 +40,9 @@ Campo de búsqueda: Se incluye un campo de búsqueda donde los usuarios pueden b
 Lista de resultados: Al buscar una película, se muestra una lista con el título, año de lanzamiento y sinopsis de cada película.
 Paginación: Se incluye un componente de paginación para navegar por las páginas de los resultados de búsqueda.
 Página de detalles: Al seleccionar una película, se muestra una página con información detallada, incluyendo elenco, duración y calificación.
+
 Extra:
-Se ha añadido la capacidad de votar por películas, generando una sesión de usuario visitante para gestionar las calificaciones sin necesidad de autenticación completa.
+Se ha añadido la capacidad de votar por películas, generando una sesión de usuario visitante lo cual se implento con la documentación oficial de TMDB, para gestionar las calificaciones sin necesidad de autenticación completa.
 
 Tecnologías utilizadas
 Angular: Para la construcción de la aplicación frontend.
